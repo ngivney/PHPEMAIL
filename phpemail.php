@@ -1,6 +1,8 @@
 <?php
+// start session
 session_start();
 
+// if sendemail button is clicked, send email
 if (isset($_POST['sendemail'])) {
 
 $to = "receiveremailaddress@goeshere.com";
