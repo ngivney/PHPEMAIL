@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="PHP email index">
+  <meta name="keywords" content="PHP email index">
+  <meta name="author" content="ngivney">
+  <title>PHP Email Example</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div id="status-message" style="margin-top: 1em; color: green;"></div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const status = params.get("status");
+  const messageEl = document.getElementById("status-message");
+
+  if (status) {
+    let message = "";
+    switch (status) {
+      case "success":
+        message = "Mail sent successfully.";
+        break;
+      case "fail":
+        message = "Mail failed to send. Please try again.";
+        messageEl.style.color = "red";
+        break;
+      case "empty":
+        message = "Please fill in all fields.";
+        messageEl.style.color = "red";
+        break;
+      case "invalid_email":
+        message = "Please enter a valid email address.";
+        messageEl.style.color = "red";
+        break;
+      default:
+        message = "There was an issue submitting the form.";
+        messageEl.style.color = "red";
+    }
+    messageEl.textContent = message;
+  }
+</script>
+  
+    <h2>Contact Me</h2>
+    <form action="phpemail.php" method="post">
+      <label>Name:</label>
+      <input type="text" name="name" required />
+    
+      <label>Email:</label>
+      <input type="email" name="email" required />
+    
+      <label>Message:</label>
+      <textarea name="message" rows="5" required></textarea>
+    
+      <button type="submit">Send</button>
+    </form>
+  
+</body>
+</html>
