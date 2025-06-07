@@ -1,49 +1,54 @@
 <?php
-// start session
-session_start();
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header("Location: index.html?status=invalid");
+    exit;
+}
 
-// if sendemail button is clicked, compose email
-if (isset($_POST['sendemail'])) {
+// Sanitize and retrieve POST data
+$name = htmlspecialchars(strip_tags(trim($_POST['name'] ?? '')));
+$email = filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL);
+$messageText = htmlspecialchars(strip_tags(trim($_POST['message'] ?? '')));
 
-$to = "receiveremailaddress@goeshere.com";
-$subject = "PHP Email Example";
+if (empty($name) || empty($email) || empty($messageText)) {
+    header("Location: index.html?status=empty");
+    exit;
+}
+
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    header("Location: index.html?status=invalid_email");
+    exit;
+}
+
+$to = "email@addressgoeshere.net";
+$subject = "New Contact Request from $name";
 
 $message = "
-<table>
-<tr><td align='center'>
-<H3 align='center'><strong>PHP Email Example</strong></H3>
-</td></tr>
-<tr><td>
-This is the body of the email text.
-</td></tr>
-</table>
+<html>
+<head><title>Contact Request</title></head>
+<body>
+  <table style='width: 100%; max-width: 600px; border-collapse: collapse;'>
+    <tr><td style='text-align: center; background-color: #f2f2f2; padding: 20px;'>
+      <h3>Contact Request Email</h3>
+    </td></tr>
+    <tr><td style='padding: 20px;'>
+      <p><strong>Name:</strong> {$name}</p>
+      <p><strong>Email:</strong> {$email}</p>
+      <p><strong>Message:</strong><br>" . nl2br($messageText) . "</p>
+    </td></tr>
+  </table>
+</body>
+</html>
 ";
 
-// Always set content-type when sending HTML email
-$headers = "MIME-Version: 1.0" . "\r\n";
-$headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+$headers = "MIME-Version: 1.0\r\n";
+$headers .= "Content-type: text/html; charset=UTF-8\r\n";
+$headers .= "From: {$name} <{$email}>\r\n";
+$headers .= "Reply-To: {$email}\r\n";
 
-// More headers
-$headers .= 'From: <senderemailaddress@goeshere.com>' . "\r\n";
-
-if(mail($to, $subject, $message, $headers)) { 
-echo "Mail Successful";
-} else { 
-echo "Mail Failed";
-}  
+if (mail($to, $subject, $message, $headers)) {
+    header("Location: index.html?status=success");
+} else {
+    header("Location: index.html?status=fail");
 }
-session_destroy();
+exit;
 ?>
-
-
-<table>
-<tr><td>
-<form name='phpemail' action='<?php echo $_SERVER['PHP_SELF'];?>'  method='post'>
-<tr>
-<td> 
-&nbsp; <input type='submit' value='Send Email' name='sendemail'/>
-</td>
-</tr>
-</form>
-</td></tr>
-</table>
